@@ -33,8 +33,8 @@ public class ContextEventCallback extends DelayCallback {
         }
 
         httpSystem.pendingContext = this.contextMessage;
-        httpSystem.AppendToHistory("", true);
-        httpSystem.AppendToHistory("", false);
+        httpSystem.AppendToHistory("", true,true);
+        httpSystem.AppendToHistory("", false,true);
         httpSystem.TriggerPostRequest("*System Update*");
         
         //FTLog("Context Event Triggered: " + this.contextMessage);

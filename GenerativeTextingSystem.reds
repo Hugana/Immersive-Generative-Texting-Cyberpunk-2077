@@ -356,6 +356,33 @@ public class GenerativeTextingSystem extends ScriptableService {
     // Reset the conversation history and remove all messages
     private func ResetConversation(playSound: Bool) {
         GetHttpRequestSystem().ResetConversation();
+
+        let jsonSystem = PersistentStorageService.GetPersistentStorageSystem();
+
+        let m_storage: ref<FileSystemStorage> = jsonSystem.GetFileStorage();
+
+        let file = jsonSystem.GetFileStorage().GetFile("my_config.json");
+
+        let json = file.ReadAsJson();   
+
+        let jsonContent: String = json.ToString("    "); 
+
+        let json = ParseJson(jsonContent) as JsonObject; 
+        
+        let char:String = GetCharacterContactName(GetTextingSystem().character);
+
+        let characterObject = json.GetKey(char) as JsonObject;
+
+
+        characterObject.SetKeyString("vMessages", "");
+        characterObject.SetKeyString("npcResponses", "");
+
+        let file = m_storage.GetFile("my_config.json");  
+                
+        file.WriteJson(json); 
+
+
+
         this.messageParent.RemoveAllChildren();
         if playSound {
             this.PlaySound(n"ui_menu_map_pin_off");
@@ -367,6 +394,62 @@ public class GenerativeTextingSystem extends ScriptableService {
         GetHttpRequestSystem().UndoMessage();
         let len = this.messageParent.GetNumChildren();
         if len > 0 {
+
+            let jsonSystem = PersistentStorageService.GetPersistentStorageSystem();
+
+            let m_storage: ref<FileSystemStorage> = jsonSystem.GetFileStorage();
+
+            let file = jsonSystem.GetFileStorage().GetFile("my_config.json");
+
+            let json = file.ReadAsJson();   
+
+            let jsonContent: String = json.ToString("    "); 
+
+            let json = ParseJson(jsonContent) as JsonObject; 
+            
+            let char:String = GetCharacterContactName(GetTextingSystem().character);
+
+            let characterObject = json.GetKey(char) as JsonObject;
+
+            let resultString1: String = characterObject.GetKeyString("vMessages");
+
+            let resultString2: String = characterObject.GetKeyString("npcResponses");
+
+            let resultArray1: array<String> = StrSplit(resultString1, "|");
+
+            let resultArray2: array<String> = StrSplit(resultString2, "|");
+
+            let newString1: String = "";
+            let newString2: String = "";
+
+            let count1: Int32 = 0;
+            let count2: Int32 = 0;
+
+            for elem in resultArray1 {
+                count1 += 1;
+                if count1 >= ArraySize(resultArray1) {
+                
+                }else{
+                    newString1 += elem + "|";
+                }
+            }
+
+            for elem in resultArray2 {
+                count2 += 1;
+                if count2 >= ArraySize(resultArray2) {
+                
+                }else{
+                    newString2 += elem + "|";
+                }
+            }
+
+            characterObject.SetKeyString("vMessages", newString1);
+            characterObject.SetKeyString("npcResponses", newString2);
+
+            let file = m_storage.GetFile("my_config.json");  
+                
+            file.WriteJson(json); 
+
             this.messageParent.RemoveChild(this.messageParent.GetWidget(len - 1));
             this.messageParent.RemoveChild(this.messageParent.GetWidget(len - 2));
             this.PlaySound(n"ui_menu_map_pin_off");
@@ -858,7 +941,7 @@ public func GetUndoString() -> String {
             messageText.SetTintColor(new Color(Cast(0u), Cast(255u), Cast(188u), Cast(255u)));
             if useAnim {
                 GetHttpRequestSystem().TriggerPostRequest(text);
-                GetHttpRequestSystem().AppendToHistory(text, true);
+                GetHttpRequestSystem().AppendToHistory(text, true,false);
             }
         } else {
             messageContainer.SetHAlign(inkEHorizontalAlign.Left);
