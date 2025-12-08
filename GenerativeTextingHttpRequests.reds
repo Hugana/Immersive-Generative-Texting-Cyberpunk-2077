@@ -1,6 +1,8 @@
 import Codeware.*
 import RedData.Json.*
 import RedHttpClient.*
+import RedFileSystem.*
+
 
 public class HttpRequestSystem extends ScriptableSystem {
   private let m_callbackSystem: wref<CallbackSystem>;
@@ -379,6 +381,155 @@ public class HttpRequestSystem extends ScriptableSystem {
     while StrBeginsWith(message, "\n") || StrBeginsWith(message, " ") {
         message = StrRight(message, StrLen(message) - 1);
     }
+
+    if fromPlayer {
+            let jsonSystem = PersistentStorageService.GetPersistentStorageSystem();
+
+            let m_storage: ref<FileSystemStorage> = jsonSystem.GetFileStorage();
+
+            let file = jsonSystem.GetFileStorage().GetFile("my_config.json");
+
+            let json = file.ReadAsJson();   
+
+            let jsonContent: String = json.ToString("    "); 
+
+            let json = ParseJson(jsonContent) as JsonObject; 
+            
+            let char:String = GetCharacterContactName(GetTextingSystem().character);
+
+            let characterObject = json.GetKey(char) as JsonObject;
+
+            let resultString: String = characterObject.GetKeyString("vMessages");
+
+            let resultArray: array<String> = StrSplit(resultString, "|");
+
+            let max_messages: Int32 = 20;
+
+            if ArraySize(resultArray) >= max_messages {
+
+                let newString: String = "";
+                let count: Int32 = 0;
+
+                for elem in resultArray {
+                    count += 1;
+                    if count == 1 {
+                    
+                    }else{
+                        newString += elem + "|";
+                    }
+                }
+
+                newString += message + "|";
+
+                characterObject.SetKeyString("vMessages", newString);
+
+                let file = m_storage.GetFile("my_config.json");  
+                
+                file.WriteJson(json); 
+                
+            }else{
+                let jsonSystem = PersistentStorageService.GetPersistentStorageSystem();
+
+                let m_storage: ref<FileSystemStorage> = jsonSystem.GetFileStorage();
+
+                let file = jsonSystem.GetFileStorage().GetFile("my_config.json");
+
+                let json = file.ReadAsJson();   
+
+                let jsonContent: String = json.ToString("    "); 
+
+                let json = ParseJson(jsonContent) as JsonObject; 
+                
+                let char:String = GetCharacterContactName(GetTextingSystem().character);
+
+                let characterObject = json.GetKey(char) as JsonObject;
+
+                let newString: String = characterObject.GetKeyString("vMessages");
+
+                newString += message + "|";
+
+                characterObject.SetKeyString("vMessages", newString);
+
+                let file = m_storage.GetFile("my_config.json");  
+
+                file.WriteJson(json);    
+            }
+
+        }else{
+
+            let jsonSystem = PersistentStorageService.GetPersistentStorageSystem();
+
+            let m_storage: ref<FileSystemStorage> = jsonSystem.GetFileStorage();
+
+            let file = jsonSystem.GetFileStorage().GetFile("my_config.json");
+
+            let json = file.ReadAsJson();   
+
+            let jsonContent: String = json.ToString("    "); 
+
+            let json = ParseJson(jsonContent) as JsonObject; 
+            
+            let char:String = GetCharacterContactName(GetTextingSystem().character);
+
+            let characterObject = json.GetKey(char) as JsonObject;
+
+            let resultString: String = characterObject.GetKeyString("npcResponses");
+
+            let resultArray: array<String> = StrSplit(resultString, "|");
+
+            let max_messages: Int32 = 20;
+
+            if ArraySize(resultArray) >= max_messages {
+
+                let newString: String = "";
+                let count: Int32 = 0;
+
+                for elem in resultArray {
+                    count += 1;
+                    if count == 1 {
+                    
+                    }else{
+                        newString += elem + "|";
+                    }
+                }
+
+                newString += message;
+
+                characterObject.SetKeyString("npcResponses", newString);
+
+                let file = m_storage.GetFile("my_config.json");  
+                
+                file.WriteJson(json); 
+                
+            }else{
+                let jsonSystem = PersistentStorageService.GetPersistentStorageSystem();
+
+                let m_storage: ref<FileSystemStorage> = jsonSystem.GetFileStorage();
+
+                let file = jsonSystem.GetFileStorage().GetFile("my_config.json");
+
+                let json = file.ReadAsJson();   
+
+                let jsonContent: String = json.ToString("    "); 
+
+                let json = ParseJson(jsonContent) as JsonObject; 
+                
+                let char:String = GetCharacterContactName(GetTextingSystem().character);
+
+                let characterObject = json.GetKey(char) as JsonObject;
+
+                let newString: String = characterObject.GetKeyString("npcResponses");
+
+                newString += message + "|";
+
+                characterObject.SetKeyString("npcResponses", newString);
+
+                let file = m_storage.GetFile("my_config.json");  
+
+                file.WriteJson(json); 
+            }  
+
+        }
 
     if fromPlayer {
       ArrayPush(this.vMessages, message);

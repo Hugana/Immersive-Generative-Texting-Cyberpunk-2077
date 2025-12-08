@@ -23,6 +23,7 @@ public func GetOpenRouterProvider() -> String {
 }
 
 
+
 // Get the character's full display name
 public func GetCharacterLocalizedName(character: CharacterSetting) -> String{
     switch character {
