@@ -23,6 +23,7 @@ public func GetOpenRouterProvider() -> String {
 }
 
 
+
 // Get the character's full display name
 public func GetCharacterLocalizedName(character: CharacterSetting) -> String{
     switch character {
@@ -68,6 +69,32 @@ public func GetCharacterContactName(character: CharacterSetting) -> String {
         //     return "mod_misty";
         case CharacterSetting.Takemura:
             return "takemura";
+    }
+}
+
+// Get the character's name for the contact list widget
+public func isContactSupported(character: String) -> Bool {
+    switch character {
+        case "panam":
+            return true;
+        case "judy":
+            return true;
+        case "river_ward":
+            return true;
+        case "kerry_eurodyne":
+            return true;
+        case "songbird":
+            return true;
+        case "rogue":
+            return true;
+        case "victor_vector":
+            return true;
+        // case CharacterSetting.Misty:
+        //     return "mod_misty";
+        case "takemura":
+            return true;
+        default:
+            return false;
     }
 }
 

@@ -293,7 +293,7 @@ public class HttpRequestSystem extends ScriptableSystem {
       this.PushNotification(processedText); 
     }
 
-    this.AppendToHistory(processedText, false,false);
+    this.AppendToHistory(processedText, false);
     this.ToggleIsGenerating(false);
   }
 
@@ -328,7 +328,7 @@ public class HttpRequestSystem extends ScriptableSystem {
       this.getAttempt = 0;
       this.ToggleIsGenerating(false);
       this.PushNotification(text);
-      this.AppendToHistory(text, false,false);
+      this.AppendToHistory(text, false);
   }
 
   // Delay the GET request
@@ -375,7 +375,7 @@ public class HttpRequestSystem extends ScriptableSystem {
   }
 
   // Add new messages to history arrays
-  public func AppendToHistory(message: String, fromPlayer: Bool, firstMessage: Bool) {
+  public func AppendToHistory(message: String, fromPlayer: Bool) {
 
     //Remove Whitespaces at the start of the message
     while StrBeginsWith(message, "\n") || StrBeginsWith(message, " ") {
@@ -457,7 +457,7 @@ public class HttpRequestSystem extends ScriptableSystem {
 
         }
         
-        if !fromPlayer && !firstMessage{
+        if !fromPlayer{
 
             let jsonSystem = PersistentStorageService.GetPersistentStorageSystem();
 

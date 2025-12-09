@@ -941,7 +941,7 @@ public func GetUndoString() -> String {
             messageText.SetTintColor(new Color(Cast(0u), Cast(255u), Cast(188u), Cast(255u)));
             if useAnim {
                 GetHttpRequestSystem().TriggerPostRequest(text);
-                GetHttpRequestSystem().AppendToHistory(text, true,false);
+                GetHttpRequestSystem().AppendToHistory(text, true);
             }
         } else {
             messageContainer.SetHAlign(inkEHorizontalAlign.Left);
@@ -990,7 +990,7 @@ public func GetUndoString() -> String {
             let vMessage = vMessages[i];
             let npcResponse = npcResponses[i];
 
-            if StrLen(vMessage) > 0 {            
+            if NotEquals(vMessage,"!?") {            
                 this.BuildMessage(vMessage, true, false);
             }
             if StrLen(npcResponse) == 0 {

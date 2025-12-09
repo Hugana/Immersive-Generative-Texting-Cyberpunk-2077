@@ -33,8 +33,8 @@ public class ContextEventCallback extends DelayCallback {
         }
 
         httpSystem.pendingContext = this.contextMessage;
-        httpSystem.AppendToHistory("", true,true);
-        httpSystem.AppendToHistory("", false,true);
+        httpSystem.AppendToHistory("!?", true);
+        httpSystem.AppendToHistory("", false);
         httpSystem.TriggerPostRequest("*System Update*");
         
         //FTLog("Context Event Triggered: " + this.contextMessage);
@@ -196,7 +196,7 @@ private final func ChangeHeatStage(newHeatStage: EPreventionHeatStage, heatChang
         }
 
       
-        let roll: Float = RandRangeF(0.0, 1.0);
+        let roll: Float = 0.20;
 
         if roll <= chance {
 
