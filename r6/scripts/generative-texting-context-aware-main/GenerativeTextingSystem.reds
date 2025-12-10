@@ -87,65 +87,38 @@ public class GenerativeTextingSystem extends ScriptableService {
     public let language: PlayerLanguage = PlayerLanguage.English;
 
     @runtimeProperty("ModSettings.mod", "Generative Texting")
-    @runtimeProperty("ModSettings.displayName", "Romance")
-    @runtimeProperty("ModSettings.description", "Controls whether the responses are predisposed to romance.")
-    public let romance: Bool = false;
+    @runtimeProperty("ModSettings.displayName", "Romance: Panam Palmer")
+    public let romance_panam: Bool = false;
 
     @runtimeProperty("ModSettings.mod", "Generative Texting")
-    @runtimeProperty("ModSettings.displayName", "Temperature")
-    @runtimeProperty("ModSettings.description", "Controls the randomness of the generated text. Lower = more predictable, higher = more random.")
-    @runtimeProperty("ModSettings.step", "0.1")
-    @runtimeProperty("ModSettings.min", "0.0")
-    @runtimeProperty("ModSettings.max", "2.0")
-    public let temperature: Float = 1.0;
+    @runtimeProperty("ModSettings.displayName", "Romance: Judy Alvarez")
+    public let romance_judy: Bool = false;
 
     @runtimeProperty("ModSettings.mod", "Generative Texting")
-    @runtimeProperty("ModSettings.displayName", "Top K")
-    @runtimeProperty("ModSettings.description", "Limits the token pool to the K most likely tokens. A lower number is more consistent but less creative.")
-    @runtimeProperty("ModSettings.step", "1")
-    @runtimeProperty("ModSettings.min", "0")
-    @runtimeProperty("ModSettings.max", "100")
-    public let top_k: Int32 = 0;
+    @runtimeProperty("ModSettings.displayName", "Romance: River Ward")
+    public let romance_river: Bool = false;
 
     @runtimeProperty("ModSettings.mod", "Generative Texting")
-    @runtimeProperty("ModSettings.displayName", "Top P")
-    @runtimeProperty("ModSettings.description", "Limits the token pool to however many tokens it takes for their probabilities to add up to P. A lower number is more consistent but less creative.")
-    @runtimeProperty("ModSettings.step", "0.05")
-    @runtimeProperty("ModSettings.min", "0.0")
-    @runtimeProperty("ModSettings.max", "1.0")
-    public let top_p: Float = 0.95;
+    @runtimeProperty("ModSettings.displayName", "Romance: Kerry Eurodyne")
+    public let romance_kerry: Bool = false;
 
     @runtimeProperty("ModSettings.mod", "Generative Texting")
-    @runtimeProperty("ModSettings.displayName", "Top A")
-    @runtimeProperty("ModSettings.description", "The number of tokens chosen from the most likely options is automatically determined based on the likelihood distribution of the options, but instead of choosing the Top P or Top K tokens, it chooses all tokens with probabilities above a certain threshold.")
-    @runtimeProperty("ModSettings.step", "0.1")
-    @runtimeProperty("ModSettings.min", "0.0")
-    @runtimeProperty("ModSettings.max", "1.0")
-    public let top_a: Float = 0.0;
+    @runtimeProperty("ModSettings.displayName", "Romance: Songbird")
+    public let romance_songbird: Bool = false;
 
     @runtimeProperty("ModSettings.mod", "Generative Texting")
-    @runtimeProperty("ModSettings.displayName", "Tail Free Sampling (TFS)")
-    @runtimeProperty("ModSettings.description", "Removes the least probable tokens from consideration during text generation, which can improve the quality and coherence of the generated text.")
-    @runtimeProperty("ModSettings.step", "0.1")
-    @runtimeProperty("ModSettings.min", "0.0")
-    @runtimeProperty("ModSettings.max", "1.0")
-    public let tfs: Float = 1.0;
+    @runtimeProperty("ModSettings.displayName", "Romance: Rogue Amendiares")
+    public let romance_rogue: Bool = false;
 
     @runtimeProperty("ModSettings.mod", "Generative Texting")
-    @runtimeProperty("ModSettings.displayName", "Minimum Probability (Min P)")
-    @runtimeProperty("ModSettings.description", "Limits the token pool by cutting off low-probability tokens relative to the top token. Produces more coherent responses but can also worsen repetition if set too high.")
-    @runtimeProperty("ModSettings.step", "0.05")
-    @runtimeProperty("ModSettings.min", "0.0")
-    @runtimeProperty("ModSettings.max", "1.0")
-    public let min_p: Float = 0.05;
+    @runtimeProperty("ModSettings.displayName", "Romance: Viktor Vektor")
+    public let romance_victor: Bool = false;
 
     @runtimeProperty("ModSettings.mod", "Generative Texting")
-    @runtimeProperty("ModSettings.displayName", "Typical P")
-    @runtimeProperty("ModSettings.description", "Selects tokens randomly from the list of possible tokens, with each token having an equal chance of being selected. Produces responses that are more diverse but may also be less coherent.")
-    @runtimeProperty("ModSettings.step", "0.05")
-    @runtimeProperty("ModSettings.min", "0.0")
-    @runtimeProperty("ModSettings.max", "1.0")
-    public let typical: Float = 1.0;
+    @runtimeProperty("ModSettings.displayName", "Romance: Goro Takemura")
+    public let romance_takemura: Bool = false;
+
+    
 
     @runtimeProperty("ModSettings.mod", "Generative Texting")
     @runtimeProperty("ModSettings.displayName", "Enable Logs")
@@ -245,8 +218,13 @@ public class GenerativeTextingSystem extends ScriptableService {
             return;
         }
 
-        // Quick Access Hotkey (U)
         if Equals(s"\(event.GetKey())", "IK_U") {
+            
+            let fixedContactId: String = GetCharacterContactName(this.character);
+            if !isContactValidForAI(fixedContactId) {
+                ConsoleLog(s"Quick Chat (U) blocked: Fixed character '\(fixedContactId)' is not supported.");
+                return;
+            }
 
             if this.isTyping { return; }
             if this.disabled { return; }
@@ -254,9 +232,8 @@ public class GenerativeTextingSystem extends ScriptableService {
             if !this.IsVanillaPhoneActive() { return; }
 
             if this.isVanillaChatOpen { return; }
-
-            if Equals(this.currentHoveredContact, "") { return; }
-
+            
+            
             if this.chatOpen {
                 return; 
             }

@@ -196,7 +196,7 @@ private final func ChangeHeatStage(newHeatStage: EPreventionHeatStage, heatChang
         }
 
       
-        let roll: Float = 0.20;
+        let roll: Float = RandRangeF(0.0, 1.0);
 
         if roll <= chance {
 

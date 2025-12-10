@@ -608,7 +608,6 @@ public class HttpRequestSystem extends ScriptableSystem {
     this.systemPrompt = "";
 
     let character = GetTextingSystem().character;
-    let romance = GetTextingSystem().romance;
     let guidelines = GetGuidelines();
 
     // If the current selected character as a tracked mission: Append the context of the mission to the prompt
@@ -626,7 +625,7 @@ public class HttpRequestSystem extends ScriptableSystem {
     this.systemPrompt += dataSystem.GetPerCharacterQuestContext(GetCharacterLocalizedName(character));
     this.systemPrompt += "</mission>";
     this.systemPrompt += "<relationship>";
-    this.systemPrompt += GetCharacterRelationship(character, romance);
+    this.systemPrompt += GetCharacterRelationship(character);
     this.systemPrompt += "</relationship>";
     this.systemPrompt += "<interactions>";
     this.systemPrompt += GetWorldInteractions();
@@ -690,13 +689,13 @@ public class HttpRequestSystem extends ScriptableSystem {
     paramsDTO.rep_pen = 1.1;
     paramsDTO.rep_pen_range = 600;
     paramsDTO.rep_pen_slope = 0;
-    paramsDTO.temperature = GetTextingSystem().temperature;
-    paramsDTO.tfs = GetTextingSystem().tfs;
-    paramsDTO.top_a =GetTextingSystem().top_a;
-    paramsDTO.top_k = GetTextingSystem().top_k;
-    paramsDTO.top_p = GetTextingSystem().top_p;
-    paramsDTO.min_p = GetTextingSystem().min_p;
-    paramsDTO.typical = GetTextingSystem().typical;
+    paramsDTO.temperature = 1.0;
+    paramsDTO.tfs = 0.95;
+    paramsDTO.top_a = 0.0;
+    paramsDTO.top_k = 0;
+    paramsDTO.top_p = 0.95;
+    paramsDTO.min_p = 0.05;
+    paramsDTO.typical = 1.0;
     paramsDTO.use_world_info = false;
     paramsDTO.singleline = false;
     paramsDTO.stop_sequence = [
