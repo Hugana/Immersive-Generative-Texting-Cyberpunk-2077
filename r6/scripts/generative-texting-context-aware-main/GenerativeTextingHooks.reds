@@ -26,123 +26,120 @@ protected cb func OnAllElementsSpawned() -> Bool {
 @wrapMethod(PhoneDialerLogicController)
 private final func RefreshInputHints(contactData: wref<ContactData>) -> Void {
     wrappedMethod(contactData);
-    
-    let textingSystem = GetTextingSystem();
-    if !IsDefined(textingSystem) { return; }
 
-    let hoveredContactId: String = IsDefined(contactData) ? contactData.contactId : "";
-    
-    if IsDefined(contactData) {
-        ConsoleLog(s"Contact name: \(hoveredContactId)");
-    }
+    if contactData != null {
+        let contactName = contactData.contactId;
+        ConsoleLog(s"Contact name: \(contactName)");
+        // Check if the active character is selected
 
-    // Abort if V is busy or generating a reply
-    if GetHttpRequestSystem().isGenerating {
-        return;
-    }
-    
-    
-    let isCurrentContactValid: Bool = isContactValidForAI(hoveredContactId);
-    
-    if !isCurrentContactValid {
-        textingSystem.ToggleNpcSelected(false);
-        return;
-    }
-    
-    if !Equals(hoveredContactId, GetCharacterContactName(textingSystem.character)) {
-        textingSystem.character = GetCharacterSettingByContactName(hoveredContactId);
-    }
-    
-  
-    textingSystem.currentHoveredContact = hoveredContactId;
+        if GetHttpRequestSystem().isGenerating {
+            return;
+        }
 
-    if !isCurrentContactValid {
-        textingSystem.currentHoveredContact = "";
-    }
-    textingSystem.ToggleNpcSelected(true); 
-    
-    
-    let contactListWidget = inkWidgetRef.Get(this.m_contactsList) as inkCompoundWidget;
-    if !IsDefined(contactListWidget) { 
-        ConsoleLog("contactListWidget not found.");
-        return; 
-    }
+        if !isContactValidForAI(contactName) {
+                if GetTextingSystem() != null {
+                GetTextingSystem().ToggleNpcSelected(false);
+            }
+            return;
+        } 
 
-    let numChildren = contactListWidget.GetNumChildren();
-    let i = 0;
-    while i < numChildren {
-        let contactEntry = contactListWidget.GetWidgetByIndex(i) as inkCompoundWidget;
-        
-        if IsDefined(contactEntry) {
-            
-            let contactEntryData = contactEntry.GetUserData(n"ContactData") as ContactData;
-            let entryContactId: String = IsDefined(contactEntryData) ? contactEntryData.contactId : "";
-            
-            let shouldShowHint: Bool = isContactValidForAI(entryContactId);
-            
-            let hintsHolderWidget = FindWidgetWithName(contactEntry, n"hints_holder") as inkHorizontalPanel;
-            
-            if IsDefined(hintsHolderWidget) && Equals(s"\(hintsHolderWidget.parentWidget.GetName())", "horiz_holder") {
+        if !Equals(contactName, GetCharacterContactName(GetTextingSystem().character)) {
+            GetTextingSystem().character = GetCharacterSettingByContactName(contactName);
+        }
 
-                let hintMod = FindWidgetWithName(hintsHolderWidget, n"hint_mod") as inkHorizontalPanel;
-                
-                if shouldShowHint {
-                    
-                    if !IsDefined(hintMod) {
-                        hintMod = hintsHolderWidget.AddChild(n"inkHorizontalPanel") as inkHorizontalPanel;
-                        
-                        if IsDefined(hintMod) {
-                            hintMod.SetName(n"hint_mod");
-                            hintMod.SetVisible(true);
-                            hintMod.SetAnchor(inkEAnchor.TopRight);
-                            hintMod.SetVAlign(inkEVerticalAlign.Center);
-                            hintMod.SetHAlign(inkEHorizontalAlign.Right);
-                            hintMod.SetFitToContent(true); 
+        if Equals(contactName, GetCharacterContactName(GetTextingSystem().character)) {
+            if GetTextingSystem() != null {
+                GetTextingSystem().ToggleNpcSelected(true);
+            }
 
-                            let keyWidget = hintMod.AddChild(n"inkImage") as inkImage;
-                            if IsDefined(keyWidget) {
-                                keyWidget.SetName(n"inputIcon");
-                                keyWidget.SetAtlasResource(r"base\\gameplay\\gui\\common\\input\\icons_keyboard.inkatlas");
-                                keyWidget.SetTexturePart(n"kb_t");
-                                keyWidget.SetSize(new Vector2(64.0, 64.0));
-                                keyWidget.SetScale(new Vector2(1, 1));
-                                keyWidget.SetAnchor(inkEAnchor.Centered);
-                                keyWidget.SetVisible(true);
-                                keyWidget.SetVAlign(inkEVerticalAlign.Center);
-                                keyWidget.SetHAlign(inkEHorizontalAlign.Center);
-                                keyWidget.BindProperty(n"tintColor", n"ContactListItem.fontColor");
-                                keyWidget.SetTintColor(new Color(Cast(94u), Cast(246u), Cast(255u), Cast(255u)));
-                            }
+            let contactListWidget = inkWidgetRef.Get(this.m_contactsList) as inkCompoundWidget;
+            if IsDefined(contactListWidget) {
 
-                            let iconWidget = hintMod.AddChild(n"inkImage") as inkImage;
-                            if IsDefined(iconWidget) {
-                                iconWidget.SetName(n"fluff");
-                                iconWidget.SetAtlasResource(r"base\\gameplay\\gui\\common\\icons\\atlas_common.inkatlas");
-                                iconWidget.SetTexturePart(n"ico_envelelope_reply1");
-                                iconWidget.SetSize(new Vector2(48.0, 48.0));    
-                                iconWidget.SetScale(new Vector2(1, 1));
-                                iconWidget.SetAnchor(inkEAnchor.TopLeft);
-                                iconWidget.SetVAlign(inkEVerticalAlign.Center);
-                                iconWidget.SetHAlign(inkEHorizontalAlign.Center);
-                                iconWidget.SetMargin(new inkMargin(7.0, 9.0, 8.0, 0.0));
-                                iconWidget.SetFitToContent(true);
-                                iconWidget.SetTintColor(new Color(Cast(94u), Cast(246u), Cast(255u), Cast(255u)));
-                                iconWidget.BindProperty(n"tintColor", n"MainColors.Blue");
-                                iconWidget.BindProperty(n"opacity", n"MenuLabel.MainOpacity");
-                                iconWidget.SetVisible(true);
-                            }
+                let numChildren = contactListWidget.GetNumChildren();
+                let i = 0;
+                while i < numChildren {
+                    let contactEntry = contactListWidget.GetWidgetByIndex(i) as inkCompoundWidget;
+                    if IsDefined(contactEntry) {
 
-                            hintsHolderWidget.ReorderChild(hintMod, 0);
-                        } 
-                    } else {
-                        hintMod.SetVisible(true);
+                        contactName = contactData.contactId;
+
+                        // Check if this entry corresponds to npc's hints_holder
+                        let contactLabel = FindWidgetWithName(contactEntry, n"contactLabel") as inkText;
+                        if IsDefined(contactLabel) && Equals(contactLabel.GetText(), GetCharacterLocalizedName(GetTextingSystem().character)) {
+
+                            // Locate the hints_holder within the npc's entry
+                            let hintsHolderWidget = FindWidgetWithName(contactEntry, n"hints_holder") as inkHorizontalPanel;
+                            if IsDefined(hintsHolderWidget) {
+
+                                if NotEquals(s"\(hintsHolderWidget.parentWidget.GetName())", "horiz_holder") {
+                                    return;
+                                }
+
+                                // Check if hint_mod already exists
+                                let hintMod = FindWidgetWithName(hintsHolderWidget, n"hint_mod") as inkHorizontalPanel;
+                                if IsDefined(hintMod) {
+
+                                } else {
+
+                                    if isContactValidForAI(contactName){
+                                        // Create hint_mod since it doesn't exist
+                                        hintMod = hintsHolderWidget.AddChild(n"inkHorizontalPanel") as inkHorizontalPanel;
+                                        if IsDefined(hintMod) {
+                                            hintMod.SetName(n"hint_mod");
+                                            hintMod.SetVisible(true);
+                                            hintMod.SetAnchor(inkEAnchor.TopRight);
+                                            hintMod.SetVAlign(inkEVerticalAlign.Center);
+                                            hintMod.SetHAlign(inkEHorizontalAlign.Right);
+
+                                            // Add icon and text to hint_mod
+                                            let keyWidget = hintMod.AddChild(n"inkImage") as inkImage;
+                                            if IsDefined(keyWidget) {
+                                                keyWidget.SetName(n"inputIcon");
+                                                keyWidget.SetAtlasResource(r"base\\gameplay\\gui\\common\\input\\icons_keyboard.inkatlas");
+                                                keyWidget.SetTexturePart(n"kb_t");
+                                                keyWidget.SetSize(new Vector2(64.0, 64.0));
+                                                keyWidget.SetScale(new Vector2(1, 1));
+                                                keyWidget.SetAnchor(inkEAnchor.Centered);
+                                                keyWidget.SetVisible(true);
+                                                keyWidget.SetVAlign(inkEVerticalAlign.Center);
+                                                keyWidget.SetHAlign(inkEHorizontalAlign.Center);
+                                                keyWidget.BindProperty(n"tintColor", n"ContactListItem.fontColor");
+                                                keyWidget.SetTintColor(new Color(Cast(94u), Cast(246u), Cast(255u), Cast(255u)));
+                                            }
+
+                                            let iconWidget = hintMod.AddChild(n"inkImage") as inkImage;
+                                            if IsDefined(iconWidget) {
+                                                iconWidget.SetName(n"fluff");
+                                                iconWidget.SetAtlasResource(r"base\\gameplay\\gui\\common\\icons\\atlas_common.inkatlas");
+                                                iconWidget.SetTexturePart(n"ico_envelelope_reply1");
+                                                iconWidget.SetSize(new Vector2(48.0, 48.0));    
+                                                iconWidget.SetScale(new Vector2(1, 1));
+                                                iconWidget.SetAnchor(inkEAnchor.TopLeft);
+                                                iconWidget.SetVAlign(inkEVerticalAlign.Center);
+                                                iconWidget.SetHAlign(inkEHorizontalAlign.Center);
+                                                iconWidget.SetMargin(new inkMargin(7.0, 9.0, 8.0, 0.0));
+                                                iconWidget.SetFitToContent(true);
+                                                iconWidget.SetTintColor(new Color(Cast(94u), Cast(246u), Cast(255u), Cast(255u)));
+                                                iconWidget.BindProperty(n"tintColor", n"MainColors.Blue");
+                                                iconWidget.BindProperty(n"opacity", n"MenuLabel.MainOpacity");
+                                                iconWidget.SetVisible(true);
+                                            }
+
+                                            hintsHolderWidget.ReorderChild(hintMod, 0);
+                                        }
+                                        
+                                    } 
+                                }
+                            } 
+                            break;
+                        }
                     }
-                } else if IsDefined(hintMod) {
-                    hintMod.SetVisible(false);
+                    i += 1;
                 }
+            } else {
+                ConsoleLog("contactListWidget not found.");
             }
         }
-        i += 1;
     }
 }
 
@@ -267,4 +264,5 @@ public final func PushCustomSMSNotification(text: String) -> Void {
     notificationData.notificationData = userData;
     this.AddNewNotificationData(notificationData);
 }
+
 
