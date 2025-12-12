@@ -27,6 +27,8 @@ public class ContextEventCallback extends DelayCallback {
 
         if IsDefined(eventManager) && eventManager.IsPlayerBusy() { return;}
 
+        if  GetHttpRequestSystem().GetIsGenerating() {return;}
+
         let lastIndex = ArraySize(httpSystem.npcResponses) - 1;
         if lastIndex >= 0 && Equals(httpSystem.npcResponses[lastIndex],""){
             return;
