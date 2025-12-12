@@ -99,7 +99,7 @@ public class HttpRequestSystem extends ScriptableSystem {
     let headers: array<HttpHeader> = [
         HttpHeader.Create("Content-Type", "application/json"),
         HttpHeader.Create("accept", "application/json"),
-        HttpHeader.Create("apikey", GetOpenRouterApiKey()),
+        HttpHeader.Create("apikey", GetApiKey()),
         HttpHeader.Create("Client-Agent", "unknown:0:unknown")
     ];
     
