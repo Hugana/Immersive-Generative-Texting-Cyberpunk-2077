@@ -12,6 +12,12 @@ Standard LLM integration often feels disconnected from gameplay. This system fix
 | :---: | :---: |
 | ![No Context](Images/NoContextMessage.png)<br>Witout quest context the character seems unaware of the world. | ![With Context](Images/WithContextMessage.png)<br>With the quest "Riders on the Storm" being tracked the character knows the current state of the world. |
 
+Jackie Wells its your first friend in the game that later dies, so messages to him will be take into account that event in the game.
+
+| **Jackie Wells Pre Heist** | **Jackie Wells Post Heist** |
+| :---: | :---: |
+| ![No Context](Images/JackiePreHeistWithContext.png)<br>Jackie Message with context of the first mission "The Rescue" | ![With Context](Images/JackiePOstHeist.png)<br>Message from Jackie after the mission where he dies. |
+
 
 ## Features & Event Systems
 
