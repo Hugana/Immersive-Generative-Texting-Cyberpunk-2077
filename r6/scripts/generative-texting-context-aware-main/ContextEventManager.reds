@@ -43,6 +43,14 @@ public class ContextEventCallback extends DelayCallback {
     }
 }
 
+public static func IsPostHeist(game: GameInstance) -> Bool {
+    let qs = GameInstance.GetQuestsSystem(game);
+    return
+        qs.GetFact(n"q101_started") > 0 ||
+        qs.GetFact(n"q005_jackie_to_hospital") > 0 ||
+        qs.GetFact(n"q005_jackie_to_mama") > 0 || qs.GetFact(n"q005_done") > 0;
+}
+
 public class ContextEventManager extends ScriptableSystem {
 
     private let lastWeatherType: worldRainIntensity;

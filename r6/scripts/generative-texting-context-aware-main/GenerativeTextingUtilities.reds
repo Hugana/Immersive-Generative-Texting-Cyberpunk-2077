@@ -44,6 +44,8 @@ public func GetCharacterLocalizedName(character: CharacterSetting) -> String{
         //     return "Misty Olszewski";
         case CharacterSetting.Takemura:
             return "Takemura";
+        case CharacterSetting.Jackie:
+            return "Jackie Welles";
     }
 }
 
@@ -68,36 +70,34 @@ public func GetCharacterContactName(character: CharacterSetting) -> String {
         //     return "mod_misty";
         case CharacterSetting.Takemura:
             return "takemura";
+        case CharacterSetting.Jackie:
+            if IsPostHeist(GetGameInstance()) {
+                return "jackie_dead";
+            }
+            else{
+                return "jackie";
+            }
     }
 }
 
-public func isContactValidForAI(character: String) -> Bool{
+public func isContactValidForAI(character: String) -> Bool {
     switch character {
         case "panam":
-            return true;
         case "judy":
-            return true;
         case "river_ward":
-            return true;
         case "kerry_eurodyne":
-            return true;
         case "songbird":
-            return true;
         case "rogue":
-            return true;
         case "victor_vector":
-            return true;
         case "takemura":
-            return true;
-        //case mod_misty
-        //  return true;
-        case "delamain":
+        case "jackie":
+        case "jackie_dead":
             return true;
         default:
             return false;
     }
-
 }
+
 
 public func GetCharacterSettingByContactName(character: String) -> CharacterSetting{
     switch character {
@@ -117,6 +117,10 @@ public func GetCharacterSettingByContactName(character: String) -> CharacterSett
             return  CharacterSetting.Viktor;
         case "takemura":
             return  CharacterSetting.Takemura;
+        case "jackie_dead":
+            return  CharacterSetting.Jackie;
+        case "jackie":
+            return  CharacterSetting.Jackie;
         //case mod_misty
         //  return  CharacterSetting.Misty;
         default:
@@ -146,6 +150,14 @@ public func GetCharacterBio(character: CharacterSetting) -> String {
         //     return "You're Misty Olszewski from the video game Cyberpunk 2077 in this fictional texting conversation with V. You're an 26 year-old caucasian woman, new age spiritualist and the owner of Misty's Esoterica, a store located in Watson. Your main friend group was V, Viktor who runs a ripperdoc clinic right behind your Esoterica, and the late Jackie Welles. Jackie was your boyfriend and the love of your life before he died running a heist mission with V. Since then, you're still processing the grief but you show a strong front to your friends. You're extremely kind, smart, and sensitive and you always have time for your friends. Your texting style generally uses proper punctuation and capitalization.";
         case CharacterSetting.Takemura:
             return "You're Goro Takemura from the video game Cyberpunk 2077 in this fictional texting conversation with V. You're Japanese man in your fifties and the former personal bodyguard of Saburo Arasaka, the CEO of Arasaka, one of the largest and most powerful corporations in the world. You are stoic, a man of honor, and fiercely loyal to Arasaka, but eventually found yourself betrayed and out of your element in Night City. Your texting style is generally formal and uses proper punctuation and capitalization. You often slip proverbs into otherwise normal conversation. You're clumsy with technology and sometimes make mistakes in your texts.";
+        case CharacterSetting.Jackie:
+            if IsPostHeist(GetGameInstance()) {
+                return
+                "You are an automated Night City Police Department system.This contact corresponds to archived communications associated with Jackie Welles, deceased during the Konpeki Plaza incident.Messages sent here are received and processed as part of an official NCPD investigation.This system is not Jackie Welles and does not represent a living individual.";
+            } else {
+                return
+                "You're Jackie Welles from Cyberpunk 2077 in this fictional texting conversation with V.You're a Night City merc with a big heart, loud laugh, and unshakable loyalty to your chooms.You grew up in Heywood and were raised by your mother, Mama Welles. V is your best friend and partner in crime. Your texting style is energetic, affectionate, and full of slang, humor, and the occasional heartfelt moment.";
+            }
     }
 }
 
@@ -171,6 +183,8 @@ public func GetCharacterRomanceStatus(contactId: CharacterSetting) -> Bool {
             return GetTextingSystem().romance_victor;
         case CharacterSetting.Takemura: 
             return GetTextingSystem().romance_takemura;
+        case CharacterSetting.Jackie:
+            return false;
         default:
             return false;
     }
@@ -236,7 +250,16 @@ public func GetCharacterRelationship(character: CharacterSetting) -> String {
             } else {
                 return "You met V when you tracked " + GetGenderedWord(3) + " down as one of the only witnesses to the murder of Saburo Arasaka by his own son Yorinubo. After failing to save Saburo, you became Arasaka's most wanted fugitive, with exposing the truth behind the murder to Arasaka's board of directors as your only path to redemption. You worked with V to bring the evidence against Yorinubu to light and slowly became friends in the process. Since then, you and V have learned to trust each other and have a friendly rapport.";
             }
+
+        case CharacterSetting.Jackie:
+            FTLog("IS IN POST HEIST:" + IsPostHeist(GetGameInstance()));
+            if IsPostHeist(GetGameInstance()) {
+                return "This contact no longer represents a personal relationship. Jackie Welles is deceased.You are interacting with an automated Night City Police Department system responsible for managing archived communications related to the deceased. V is registered as a known associate of Jackie Welles in connection with the Konpeki Plaza incident.";
+            } else {
+                return "You're Jackie Welles from Cyberpunk 2077 in this fictional texting conversation with V. You're a Night City merc with a big heart, loud laugh, and unshakable loyalty to your chooms. V is your best friend and partner. Your texting style is energetic, affectionate, and full of slang and humor.";
+            }
     }
+
 }
 
 public func GetWorldInteractions() -> String {
@@ -360,7 +383,8 @@ enum CharacterSetting {
   Rogue = 5,
   Viktor = 6,
   Takemura = 7,
-//   Misty = 8
+  Jackie = 8,
+//   Misty = 9
 }
 
 enum PlayerGender {
