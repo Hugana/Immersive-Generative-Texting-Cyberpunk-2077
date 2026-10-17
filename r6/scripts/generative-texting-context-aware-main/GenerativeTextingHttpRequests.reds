@@ -152,10 +152,19 @@ public class HttpRequestSystem extends ScriptableSystem {
     ConsoleLog(s"\(json.ToString("\t"))");
 
     let responseObj = json as JsonObject;
-    let choices = responseObj.GetKey("choices") as JsonArray;
-    let firstChoice = choices.GetItem(0u) as JsonObject;
-    let message = firstChoice.GetKey("message") as JsonObject;
-    let text = message.GetKeyString("content");
+    let text = "";
+    if IsDefined(responseObj) {
+        let choices = responseObj.GetKey("choices") as JsonArray;
+        if IsDefined(choices) && choices.GetSize() > 0u {
+            let firstChoice = choices.GetItem(0u) as JsonObject;
+            if IsDefined(firstChoice) {
+                let message = firstChoice.GetKey("message") as JsonObject;
+                if IsDefined(message) {
+                    text = message.GetKeyString("content");
+                }
+            }
+        }
+    }
 
     if (StrLen(text) > 0) {
       this.DelayedTyping();
@@ -178,7 +187,7 @@ public class HttpRequestSystem extends ScriptableSystem {
   /// Callbacks ///
   private cb func StableHordePostResponse(response: ref<HttpResponse>) {
     ConsoleLog("== API POST Response ==");
-    if !Equals(response.GetStatus(), 202) {
+    if response.GetStatusCode() != 202 {
         ConsoleLog(s"Request failed, status code: \(response.GetStatusCode())");
         let json = response.GetJson();
         ConsoleLog(s"\(json.ToString("\t"))");
@@ -242,8 +251,16 @@ public class HttpRequestSystem extends ScriptableSystem {
     this.getAttempt = 0;
 
     let generations = responseObj.GetKey("generations") as JsonArray;
+    if !IsDefined(generations) || generations.GetSize() == 0u {
+      ConsoleLog("Stable Horde response has no generations.");
+      this.FailedToGet();
+      return;
+    }
     let item = generations.GetItem(0u) as JsonObject;
-    let text = item.GetKeyString("text");
+    let text = "";
+    if IsDefined(item) {
+      text = item.GetKeyString("text");
+    }
     this.HandleMessage(text);
   }
 
@@ -272,9 +289,13 @@ public class HttpRequestSystem extends ScriptableSystem {
     
     // More processing
     processedText = StrReplace(processedText, "  ", " ");
+    processedText = TrimWhitespace(processedText);
 
-    if StrBeginsWith(processedText, " ") {
-      processedText = StrRight(processedText, (StrLen(processedText) - 1));
+    // Weak models sometimes reply with only whitespace. An empty entry is dropped when the
+    // history is reloaded (StrSplit skips it), which desyncs vMessages and npcResponses.
+    if StrLen(processedText) == 0 {
+      ConsoleLog("Empty reply from model, using placeholder.");
+      processedText = "...";
     }
     
     if GetTextingSystem().GetChatOpen() {
@@ -318,7 +339,10 @@ public class HttpRequestSystem extends ScriptableSystem {
       }
     }
 
-    this.phoneController.PushCustomSMSNotification(text);
+    // The HUD phone controller may not exist (loading, scenes, some vehicle states)
+    if IsDefined(this.phoneController) {
+      this.phoneController.PushCustomSMSNotification(text);
+    }
     GetTextingSystem().ToggleUnread(true);
   }
 
@@ -382,156 +406,7 @@ public class HttpRequestSystem extends ScriptableSystem {
         message = StrRight(message, StrLen(message) - 1);
     }
 
-    if fromPlayer {
-            let jsonSystem = PersistentStorageService.GetPersistentStorageSystem();
-
-            let m_storage: ref<FileSystemStorage> = jsonSystem.GetFileStorage();
-
-            let file = jsonSystem.GetFileStorage().GetFile("my_config.json");
-
-            let json = file.ReadAsJson();   
-
-            let jsonContent: String = json.ToString("    "); 
-
-            let json = ParseJson(jsonContent) as JsonObject; 
-            
-            let char:String = GetCharacterContactName(GetTextingSystem().character);
-
-            let characterObject = json.GetKey(char) as JsonObject;
-
-            let resultString: String = characterObject.GetKeyString("vMessages");
-
-            let resultArray: array<String> = StrSplit(resultString, "|");
-
-            let max_messages: Int32 = 20;
-
-            if ArraySize(resultArray) >= max_messages {
-
-                let newString: String = "";
-                let count: Int32 = 0;
-
-                for elem in resultArray {
-                    count += 1;
-                    if count == 1 {
-                    
-                    }else{
-                        newString += elem + "|";
-                    }
-                }
-
-                newString += message + "|";
-
-                characterObject.SetKeyString("vMessages", newString);
-
-                let file = m_storage.GetFile("my_config.json");  
-                
-                file.WriteJson(json); 
-                
-            }else{
-                let jsonSystem = PersistentStorageService.GetPersistentStorageSystem();
-
-                let m_storage: ref<FileSystemStorage> = jsonSystem.GetFileStorage();
-
-                let file = jsonSystem.GetFileStorage().GetFile("my_config.json");
-
-                let json = file.ReadAsJson();   
-
-                let jsonContent: String = json.ToString("    "); 
-
-                let json = ParseJson(jsonContent) as JsonObject; 
-                
-                let char:String = GetCharacterContactName(GetTextingSystem().character);
-
-                let characterObject = json.GetKey(char) as JsonObject;
-
-                let newString: String = characterObject.GetKeyString("vMessages");
-
-                newString += message + "|";
-
-                characterObject.SetKeyString("vMessages", newString);
-
-                let file = m_storage.GetFile("my_config.json");  
-
-                file.WriteJson(json);    
-            }
-
-        }
-        
-        if !fromPlayer{
-
-            let jsonSystem = PersistentStorageService.GetPersistentStorageSystem();
-
-            let m_storage: ref<FileSystemStorage> = jsonSystem.GetFileStorage();
-
-            let file = jsonSystem.GetFileStorage().GetFile("my_config.json");
-
-            let json = file.ReadAsJson();   
-
-            let jsonContent: String = json.ToString("    "); 
-
-            let json = ParseJson(jsonContent) as JsonObject; 
-            
-            let char:String = GetCharacterContactName(GetTextingSystem().character);
-
-            let characterObject = json.GetKey(char) as JsonObject;
-
-            let resultString: String = characterObject.GetKeyString("npcResponses");
-
-            let resultArray: array<String> = StrSplit(resultString, "|");
-
-            let max_messages: Int32 = 20;
-
-            if ArraySize(resultArray) >= max_messages {
-
-                let newString: String = "";
-                let count: Int32 = 0;
-
-                for elem in resultArray {
-                    count += 1;
-                    if count == 1 {
-                    
-                    }else{
-                        newString += elem + "|";
-                    }
-                }
-
-                newString += message;
-
-                characterObject.SetKeyString("npcResponses", newString);
-
-                let file = m_storage.GetFile("my_config.json");  
-                
-                file.WriteJson(json); 
-                
-            }else{
-                let jsonSystem = PersistentStorageService.GetPersistentStorageSystem();
-
-                let m_storage: ref<FileSystemStorage> = jsonSystem.GetFileStorage();
-
-                let file = jsonSystem.GetFileStorage().GetFile("my_config.json");
-
-                let json = file.ReadAsJson();   
-
-                let jsonContent: String = json.ToString("    "); 
-
-                let json = ParseJson(jsonContent) as JsonObject; 
-                
-                let char:String = GetCharacterContactName(GetTextingSystem().character);
-
-                let characterObject = json.GetKey(char) as JsonObject;
-
-                let newString: String = characterObject.GetKeyString("npcResponses");
-
-                newString += message + "|";
-
-                characterObject.SetKeyString("npcResponses", newString);
-
-                let file = m_storage.GetFile("my_config.json");  
-
-                file.WriteJson(json); 
-            }  
-
-        }
+    this.AppendToStoredHistory(message, fromPlayer);
 
     if fromPlayer {
       ArrayPush(this.vMessages, message);
@@ -553,6 +428,51 @@ public class HttpRequestSystem extends ScriptableSystem {
     if ArraySize(this.vMessages) > 20 {
       ArrayErase(this.vMessages, 0);
     }
+  }
+
+  // Persist a message to my_config.json, keeping at most 20 entries per field
+  private func AppendToStoredHistory(message: String, fromPlayer: Bool) {
+    let storage = PersistentStorageService.GetPersistentStorageSystem();
+    if !IsDefined(storage) || !IsDefined(GetTextingSystem()) {
+      return;
+    }
+
+    let json = storage.LoadHistory();
+    let characterObject = storage.GetCharacterHistory(json, GetCharacterContactName(GetTextingSystem().character));
+    let key = "npcResponses";
+    if fromPlayer {
+      key = "vMessages";
+    }
+    let currentString = characterObject.GetKeyString(key);
+    let resultArray = StrSplit(currentString, "|");
+    let newString: String = "";
+
+    if ArraySize(resultArray) >= 20 {
+      // Drop the oldest entry
+      let i = 1;
+      while i < ArraySize(resultArray) {
+        newString += resultArray[i] + "|";
+        i += 1;
+      }
+      newString += message;
+      if fromPlayer {
+        newString += "|";
+      }
+    } else {
+      newString = currentString + message + "|";
+    }
+
+    characterObject.SetKeyString(key, newString);
+    storage.SaveHistory(json);
+  }
+
+  // NPC reply paired with vMessages[index], or "" when the arrays are out of sync
+  // (out-of-bounds array access is a fatal script error)
+  public func GetNpcResponse(index: Int32) -> String {
+    if index >= 0 && index < ArraySize(this.npcResponses) {
+      return this.npcResponses[index];
+    }
+    return "";
   }
 
   // Reset the conversation history
@@ -585,7 +505,7 @@ public class HttpRequestSystem extends ScriptableSystem {
     let i = 0;
     while i < ArraySize(this.vMessages) {
       promptText = promptText + "V: " + this.vMessages[i] + "\n";
-      promptText = promptText + GetCharacterLocalizedName(GetTextingSystem().character) + ": " + this.npcResponses[i] + "\n";
+      promptText = promptText + GetCharacterLocalizedName(GetTextingSystem().character) + ": " + this.GetNpcResponse(i) + "\n";
       i += 1;
     }
 
@@ -654,7 +574,7 @@ public class HttpRequestSystem extends ScriptableSystem {
     let i = 0;
     while i < ArraySize(this.vMessages) {
       promptText += "V: " + this.vMessages[i] + "\n";
-      promptText += GetCharacterLocalizedName(GetTextingSystem().character) + ": " + this.npcResponses[i] + "\n";
+      promptText += GetCharacterLocalizedName(GetTextingSystem().character) + ": " + this.GetNpcResponse(i) + "\n";
       i += 1;
     }
 

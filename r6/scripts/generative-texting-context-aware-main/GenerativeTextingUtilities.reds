@@ -14,7 +14,7 @@ public func GetOpenRouterApiKey() -> String {
 
 // Replace this with your desired model at https://openrouter.ai/ 
 public func GetOpenRouterModel() -> String {
-    return "x-ai/grok-4.1-fast:free";
+    return "nvidia/nemotron-3-ultra-550b-a55b:free";
 }
 
 // Replace this with your desired provider for OpenRouter
@@ -427,6 +427,17 @@ public func GetCurrentTime() -> String {
     } else {
         return s"\(hours):\(minutes)am";
     }
+}
+
+// Strip leading and trailing spaces, tabs and newlines
+public func TrimWhitespace(text: String) -> String {
+    while StrLen(text) > 0 && (StrBeginsWith(text, " ") || StrBeginsWith(text, "\n") || StrBeginsWith(text, "\r") || StrBeginsWith(text, "\t")) {
+        text = StrRight(text, StrLen(text) - 1);
+    }
+    while StrLen(text) > 0 && (StrEndsWith(text, " ") || StrEndsWith(text, "\n") || StrEndsWith(text, "\r") || StrEndsWith(text, "\t")) {
+        text = StrLeft(text, StrLen(text) - 1);
+    }
+    return text;
 }
 
 // Helper function to find a widget by name within a widget hierarchy

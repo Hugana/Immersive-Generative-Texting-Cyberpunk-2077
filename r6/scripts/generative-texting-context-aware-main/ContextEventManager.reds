@@ -19,9 +19,13 @@ public class ContextEventCallback extends DelayCallback {
     
     public func Call() -> Void {
 
-        let httpSystem = GetHttpRequestSystem();  
+        let httpSystem = GetHttpRequestSystem();
 
-        if !IsDefined(httpSystem) { return; }
+        if !IsDefined(httpSystem) || !IsDefined(GetTextingSystem()) { return; }
+
+        // Don't fire while loading, in the main menu, or before the player exists
+        if GameInstance.GetSystemRequestsHandler().IsPreGame() { return; }
+        if !IsDefined(GetPlayer(GetGameInstance())) { return; }
 
         let eventManager = GameInstance.GetScriptableSystemsContainer(GetGameInstance()).Get(n"ContextEventManager") as ContextEventManager;
 
@@ -54,12 +58,13 @@ public static func IsPostHeist(game: GameInstance) -> Bool {
 public class ContextEventManager extends ScriptableSystem {
 
     private let lastWeatherType: worldRainIntensity;
+    private let hasWeatherBaseline: Bool = false;
 
     private func OnAttach() -> Void {
-        // Initialize Weather State
-        let weatherSystem = GameInstance.GetWeatherSystem(this.GetGameInstance());
-        this.lastWeatherType = weatherSystem.GetRainIntensityType();
-        
+        // Weather baseline is taken on the first tick once the player exists,
+        // otherwise a save loading into rain reads as a "weather change"
+        this.hasWeatherBaseline = false;
+
         // Start Loop
         this.StartWeatherMonitor();
         //FTLog("Context Event Manager Attached. Monitoring Weather.");
@@ -69,6 +74,7 @@ public class ContextEventManager extends ScriptableSystem {
     public func TransferMoneyToPlayer(amount: Int32) -> Void {
         
         let player = GetPlayer(this.GetGameInstance());
+        if !IsDefined(player) { return; }
         let transactionSystem = GameInstance.GetTransactionSystem(this.GetGameInstance());
         let moneyID = ItemID.FromTDBID(t"Items.money");        
         transactionSystem.GiveItem(player, moneyID, amount);
@@ -99,8 +105,17 @@ public class ContextEventManager extends ScriptableSystem {
 
     //Check weather change
     public func CheckWeatherChange() -> Void {
+        if !IsDefined(GetPlayer(this.GetGameInstance())) { return; }
+
         let weatherSystem = GameInstance.GetWeatherSystem(this.GetGameInstance());
+        if !IsDefined(weatherSystem) { return; }
         let currentType = weatherSystem.GetRainIntensityType();
+
+        if !this.hasWeatherBaseline {
+            this.lastWeatherType = currentType;
+            this.hasWeatherBaseline = true;
+            return;
+        }
 
         if NotEquals(currentType, this.lastWeatherType) {
             this.lastWeatherType = currentType;
@@ -157,9 +172,10 @@ private final func OnDistrictAreaEntered(request: ref<DistrictEnteredEvent>) -> 
             let districtName: String = TDBID.ToStringDEBUG(districtID);
 
             let dataSystem = GameInstance.GetScriptableSystemsContainer(this.GetGameInstance()).Get(n"ContextDataSystem") as ContextDataSystem;
+            if !IsDefined(dataSystem) { return; }
 
             //FTLog("DISTRICT CHANGE DETECTED: " + districtName);
-            
+
             if Equals(dataSystem.GetBarLocationInvite(districtName),""){ return; }
 
             let chance: Float = 0.05;
@@ -211,7 +227,8 @@ private final func ChangeHeatStage(newHeatStage: EPreventionHeatStage, heatChang
         if roll <= chance {
 
             let dataSystem = GameInstance.GetScriptableSystemsContainer(this.GetGameInstance()).Get(n"ContextDataSystem") as ContextDataSystem;
-            
+            if !IsDefined(dataSystem) { return; }
+
             let policeEvent = new ContextEventCallback(); 
             policeEvent.heatLevel = newStageInt;
             policeEvent.contextMessage = dataSystem.GetPoliceEventPrompt(newStageInt);

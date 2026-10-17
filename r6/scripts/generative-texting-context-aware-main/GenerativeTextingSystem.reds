@@ -334,31 +334,14 @@ public class GenerativeTextingSystem extends ScriptableService {
     private func ResetConversation(playSound: Bool) {
         GetHttpRequestSystem().ResetConversation();
 
-        let jsonSystem = PersistentStorageService.GetPersistentStorageSystem();
-
-        let m_storage: ref<FileSystemStorage> = jsonSystem.GetFileStorage();
-
-        let file = jsonSystem.GetFileStorage().GetFile("my_config.json");
-
-        let json = file.ReadAsJson();   
-
-        let jsonContent: String = json.ToString("    "); 
-
-        let json = ParseJson(jsonContent) as JsonObject; 
-        
-        let char:String = GetCharacterContactName(GetTextingSystem().character);
-
-        let characterObject = json.GetKey(char) as JsonObject;
-
-
-        characterObject.SetKeyString("vMessages", "");
-        characterObject.SetKeyString("npcResponses", "");
-
-        let file = m_storage.GetFile("my_config.json");  
-                
-        file.WriteJson(json); 
-
-
+        let storage = PersistentStorageService.GetPersistentStorageSystem();
+        if IsDefined(storage) {
+            let json = storage.LoadHistory();
+            let characterObject = storage.GetCharacterHistory(json, GetCharacterContactName(this.character));
+            characterObject.SetKeyString("vMessages", "");
+            characterObject.SetKeyString("npcResponses", "");
+            storage.SaveHistory(json);
+        }
 
         this.messageParent.RemoveAllChildren();
         if playSound {
@@ -370,23 +353,12 @@ public class GenerativeTextingSystem extends ScriptableService {
     private func UndoMessage() {
         GetHttpRequestSystem().UndoMessage();
         let len = this.messageParent.GetNumChildren();
-        if len > 0 {
+        let storage = PersistentStorageService.GetPersistentStorageSystem();
+        if len > 0 && IsDefined(storage) {
 
-            let jsonSystem = PersistentStorageService.GetPersistentStorageSystem();
+            let json = storage.LoadHistory();
 
-            let m_storage: ref<FileSystemStorage> = jsonSystem.GetFileStorage();
-
-            let file = jsonSystem.GetFileStorage().GetFile("my_config.json");
-
-            let json = file.ReadAsJson();   
-
-            let jsonContent: String = json.ToString("    "); 
-
-            let json = ParseJson(jsonContent) as JsonObject; 
-            
-            let char:String = GetCharacterContactName(GetTextingSystem().character);
-
-            let characterObject = json.GetKey(char) as JsonObject;
+            let characterObject = storage.GetCharacterHistory(json, GetCharacterContactName(this.character));
 
             let resultString1: String = characterObject.GetKeyString("vMessages");
 
@@ -423,9 +395,7 @@ public class GenerativeTextingSystem extends ScriptableService {
             characterObject.SetKeyString("vMessages", newString1);
             characterObject.SetKeyString("npcResponses", newString2);
 
-            let file = m_storage.GetFile("my_config.json");  
-                
-            file.WriteJson(json); 
+            storage.SaveHistory(json);
 
             this.messageParent.RemoveChild(this.messageParent.GetWidget(len - 1));
             this.messageParent.RemoveChild(this.messageParent.GetWidget(len - 2));
@@ -443,36 +413,20 @@ public class GenerativeTextingSystem extends ScriptableService {
         this.npcSelected = value;
         if this.npcSelected {
 
-            let jsonSystem = PersistentStorageService.GetPersistentStorageSystem();
+            let storage = PersistentStorageService.GetPersistentStorageSystem();
 
-            if!IsDefined(jsonSystem) {
-                FTLogError("ToggleNpcSelected: JsonReaderSystem not available.");
+            if !IsDefined(storage) {
+                FTLogError("ToggleNpcSelected: PersistentStorageService not available.");
+            } else {
+                let json = storage.LoadHistory();
+                let characterObject = storage.GetCharacterHistory(json, GetCharacterContactName(this.character));
+
+                let resultArray1: array<String> = StrSplit(characterObject.GetKeyString("vMessages"), "|");
+                let resultArray2: array<String> = StrSplit(characterObject.GetKeyString("npcResponses"), "|");
+
+                GetHttpRequestSystem().vMessages = resultArray1;
+                GetHttpRequestSystem().npcResponses = resultArray2;
             }
-
-        
-            let m_storage: ref<FileSystemStorage> = jsonSystem.GetFileStorage();
-
-            let file = jsonSystem.GetFileStorage().GetFile("my_config.json");
-
-            let json = file.ReadAsJson();   
-
-            let jsonContent: String = json.ToString("    "); 
-
-            let json = ParseJson(jsonContent) as JsonObject; 
-            
-            let char:String = GetCharacterContactName(GetTextingSystem().character);
-
-            let characterObject = json.GetKey(char) as JsonObject;
-
-            let resultString1: String = characterObject.GetKeyString("vMessages");
-            let resultString2: String = characterObject.GetKeyString("npcResponses");
-
-            let resultArray1: array<String> = StrSplit(resultString1, "|");
-            let resultArray2: array<String> = StrSplit(resultString2, "|");
-
-            
-            GetHttpRequestSystem().vMessages = resultArray1;
-            GetHttpRequestSystem().npcResponses = resultArray2;
 
             // Register Keys...
             this.callbackSystem.RegisterCallback(n"Input/Key", this, n"OnKeyInput", true)
@@ -958,20 +912,20 @@ public func GetUndoString() -> String {
 
     // Retrieve and build the conversation based on the current history
     private func BuildConversation() {
-        let vMessages = GetHttpRequestSystem().vMessages;
-        let npcResponses = GetHttpRequestSystem().npcResponses;
+        let httpSystem = GetHttpRequestSystem();
+        let vMessages = httpSystem.vMessages;
 
         let i = 0;
         while i < ArraySize(vMessages) {
-            
-            let vMessage = vMessages[i];
-            let npcResponse = npcResponses[i];
 
-            if NotEquals(vMessage,"!?") {            
+            let vMessage = vMessages[i];
+            let npcResponse = httpSystem.GetNpcResponse(i);
+
+            if NotEquals(vMessage,"!?") {
                 this.BuildMessage(vMessage, true, false);
             }
             if StrLen(npcResponse) == 0 {
-                i += 1;
+                // No reply to show
             } else if StrLen(npcResponse) > 1000 {
                 let firstHalf = StrLeft(npcResponse, 1000);
                 let secondHalf = StrRight(npcResponse, (StrLen(npcResponse) - 1000));
