@@ -1,0 +1,57 @@
+r6/scripts/generative-texting-context-aware-main/GenerativeTextingHttpRequests.reds
+  s_1e8a7b87009152::t_894ec6c0d03b89 190
+  s_1e8a7b87009152::t_4be30669efa07b 254-258
+  s_1e8a7b87009152::t_dcd801cf55c0e0 457-460
+  s_1e8a7b87009152::t_772b4a104ef852 260-263
+  s_1e8a7b87009152::t_43f93b369e28d4 292,294-298
+  s_1e8a7b87009152::t_c69670fc403c16 342-345
+  s_1e8a7b87009152::t_c0d2758e061c40 442-445
+  s_1e8a7b87009152::t_9766c3e1d9e7a8 409
+  s_1e8a7b87009152::t_18610d767a2c99 167
+  s_1e8a7b87009152::t_c4917bd022e13a 155-166
+  s_1e8a7b87009152::t_34231dc740c42d 433-441,446-456,461-468
+  s_1e8a7b87009152::t_e25f8706159b97 469-477
+  s_1e8a7b87009152::t_6b5e18c1f93b5e 508
+  s_1e8a7b87009152::t_c69479799a0d37 577
+r6/scripts/generative-texting-context-aware-main/ContextEventManager.reds
+  s_1e8a7b87009152::t_e2b68bbd788107 61,64-67
+  s_1e8a7b87009152::t_856e5b01bab2ef 108-109,111,114-118
+  s_1e8a7b87009152::t_d7149da23c2e81 77
+  s_1e8a7b87009152::t_c75c9b91f2bec3 175,178
+  s_1e8a7b87009152::t_37590184790077 22,24-28
+  s_1e8a7b87009152::t_ceada3c0f62fb5 230-231
+  s_1e8a7b87009152::t_d4146bd2f9cabd 119
+r6/scripts/generative-texting-context-aware-main/GenerativeTextingUtilities.reds
+  s_1e8a7b87009152::t_ec20ae39d9b64c 432-442
+  h_ac517ca3cdc9d7 17
+r6/scripts/generative-texting-context-aware-main/PersistenteStorageService.reds
+  s_1e8a7b87009152::t_2042c2e026ff2d 8-10,27-71,75
+r6/scripts/generative-texting-context-aware-main/GenerativeTextingSystem.reds
+  s_1e8a7b87009152::t_3c0cae060f81ee 356-357,359,361
+  s_1e8a7b87009152::t_d0d7f8110a2498 337-344
+  s_1e8a7b87009152::t_f4a99c49697215 416,418-422,424-425,427-428
+  s_1e8a7b87009152::t_9fac434a3865e7 915-916,920,922,924,928
+  s_1e8a7b87009152::t_e1214e81f4ee19 398
+  s_1e8a7b87009152::t_910db85301193d 429
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e975a500db59c1790aa2d4fb6ea825762c58b4c9",
+  "prompts": {},
+  "humans": {
+    "h_ac517ca3cdc9d7": {
+      "author": "Hugo Ferreira <hugo.dn.ferreira@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_1e8a7b87009152": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "26976138-b925-42bf-94fd-9fafd762bf71",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Hugo Ferreira <hugo.dn.ferreira@gmail.com>"
+    }
+  }
+}
