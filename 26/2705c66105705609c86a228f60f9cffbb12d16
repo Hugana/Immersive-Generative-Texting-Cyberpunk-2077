@@ -1,0 +1,39 @@
+r6/scripts/generative-texting-context-aware-main/ContextEventManager.reds
+  s_512ced6b9b92f3::t_0d8689f9a81cd4 65-66
+  s_512ced6b9b92f3::t_cbf6f11a67474d 67-68,78-79,152-154,156-157,160-167,171,174,176-182,187-188
+  s_512ced6b9b92f3::t_62922e3957ebe0 69-70,80-81,172-173,175
+  s_512ced6b9b92f3::t_374411150367b5 159
+  s_512ced6b9b92f3::t_bf3cce85d2f9e3 43,45
+  s_512ced6b9b92f3::t_56f6cf99fa5127 170
+  s_512ced6b9b92f3::t_df38b029ccb78f 8,64,71,76-77,121-151,155,158,168-169,183-186,189-194
+  s_512ced6b9b92f3::t_1f320492e7424a 195-196
+r6/scripts/generative-texting-context-aware-main/ContextDataSystem.reds
+  s_512ced6b9b92f3::t_ab7bc54a28f6c5 17-35
+r6/scripts/generative-texting-context-aware-main/GenerativeTextingSystem.reds
+  s_512ced6b9b92f3::t_bf3cce85d2f9e3 937
+r6/scripts/generative-texting-context-aware-main/GenerativeTextingHttpRequests.reds
+  s_512ced6b9b92f3::t_bf3cce85d2f9e3 500-527,533,543,597,606
+r6/scripts/generative-texting-context-aware-main/GenerativeTextingUtilities.reds
+  s_512ced6b9b92f3::t_bf3cce85d2f9e3 456-466
+README.md
+  s_512ced6b9b92f3::t_58d3b94b823630 63
+  s_512ced6b9b92f3::t_1770906227bc99 65
+  s_512ced6b9b92f3::t_fa213ab78f77b9 67-69
+  s_512ced6b9b92f3::t_70a8c4c0444dee 59-62,64,66
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "262705c66105705609c86a228f60f9cffbb12d16",
+  "prompts": {},
+  "sessions": {
+    "s_512ced6b9b92f3": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "84fd3b27-6a98-47be-8c3f-d9643fff053a",
+        "model": "unknown"
+      },
+      "human_author": "Hugo Ferreira <hugo.dn.ferreira@gmail.com>"
+    }
+  }
+}
