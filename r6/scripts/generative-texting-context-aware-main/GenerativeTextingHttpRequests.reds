@@ -497,17 +497,40 @@ public class HttpRequestSystem extends ScriptableSystem {
     GetTextingSystem().UpdateInputUi();
   }
 
+  // Conversation history as text. Entries where the character texted on their own have no V line.
+  private func BuildHistoryString() -> String {
+    let history = "";
+    let characterName = GetCharacterLocalizedName(GetTextingSystem().character);
+    let i = 0;
+    while i < ArraySize(this.vMessages) {
+      let npcResponse = this.GetNpcResponse(i);
+      if Equals(this.vMessages[i], GetHiddenMessageMarker()) {
+        if StrLen(npcResponse) > 0 {
+          history += characterName + ": " + npcResponse + "\n";
+        }
+      } else {
+        history += "V: " + this.vMessages[i] + "\n";
+        history += characterName + ": " + npcResponse + "\n";
+      }
+      i += 1;
+    }
+    return history;
+  }
+
+  // Last line before the character answers: V's message, or a neutral note for context events
+  private func BuildInputLine(playerInput: String) -> String {
+    if Equals(playerInput, GetSystemTriggerMessage()) {
+      return "[V has not written anything. Text V first, following the event instructions.]";
+    }
+    return "V: " + playerInput;
+  }
+
   // Generate the prompt using the arrays
   public func GeneratePrompt(playerInput: String) -> String {
     let promptText = this.GetSystemPrompt() + "\n\n";
 
     // Concatenate recent exchanges to form the conversation history
-    let i = 0;
-    while i < ArraySize(this.vMessages) {
-      promptText = promptText + "V: " + this.vMessages[i] + "\n";
-      promptText = promptText + GetCharacterLocalizedName(GetTextingSystem().character) + ": " + this.GetNpcResponse(i) + "\n";
-      i += 1;
-    }
+    promptText += this.BuildHistoryString();
 
     /*// Added for game context
     if StrLen(this.pendingContext) > 0 {
@@ -517,7 +540,7 @@ public class HttpRequestSystem extends ScriptableSystem {
     }*/
 
     // Add the player’s current message to the prompt
-    promptText += "V: " + playerInput + " <|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n" + GetCharacterLocalizedName(GetTextingSystem().character) + ": ";
+    promptText += this.BuildInputLine(playerInput) + " <|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n" + GetCharacterLocalizedName(GetTextingSystem().character) + ": ";
 
     return promptText;
   }
@@ -571,12 +594,7 @@ public class HttpRequestSystem extends ScriptableSystem {
     let promptText = ""; 
 
     // 1. Concatenate History
-    let i = 0;
-    while i < ArraySize(this.vMessages) {
-      promptText += "V: " + this.vMessages[i] + "\n";
-      promptText += GetCharacterLocalizedName(GetTextingSystem().character) + ": " + this.GetNpcResponse(i) + "\n";
-      i += 1;
-    }
+    promptText += this.BuildHistoryString();
 
     /*// 2. Inject Pending Context (Police/Weather events go here)
     if StrLen(this.pendingContext) > 0 {
@@ -585,7 +603,7 @@ public class HttpRequestSystem extends ScriptableSystem {
     }*/
 
     // 3. Add Player Input
-    promptText += "V: " + playerInput + " <|eot_id|><|start_header_id|>character<|end_header_id|>\n\n" + GetCharacterLocalizedName(GetTextingSystem().character) + ": ";
+    promptText += this.BuildInputLine(playerInput) + " <|eot_id|><|start_header_id|>character<|end_header_id|>\n\n" + GetCharacterLocalizedName(GetTextingSystem().character) + ": ";
 
     return promptText;
   }

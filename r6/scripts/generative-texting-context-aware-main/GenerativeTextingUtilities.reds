@@ -453,6 +453,17 @@ public func GetHttpRequestSystem() -> ref<HttpRequestSystem> {
     return GameInstance.GetScriptableSystemsContainer(GetGameInstance()).Get(n"HttpRequestSystem") as HttpRequestSystem;
 }
 
+// Placeholder stored as V's message when a character texts on their own (context events).
+// It keeps vMessages and npcResponses aligned, is hidden in the chat window and never sent to the model.
+public func GetHiddenMessageMarker() -> String {
+    return "!?";
+}
+
+// Input passed to the request when there is no real message from V
+public func GetSystemTriggerMessage() -> String {
+    return "*System Update*";
+}
+
 // Get the current in-game time
 public func GetCurrentTime() -> String {
     let time = GameInstance.GetGameTime(GetGameInstance());

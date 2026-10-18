@@ -14,6 +14,25 @@ public class ContextDataSystem extends ScriptableSystem {
         return ""; 
     }
 
+    // Prompt Generation for time of day events. kind: 0 = morning, 1 = late night, 2 = woke up / time passed
+    public func GetTimeContextPrompt(kind: Int32) -> String {
+        let basePrompt =
+        "[INSTRUCTION: You are roleplaying. Send V a short, casual text message on your own initiative, in your usual texting style. " +
+        "DO NOT mention the exact clock time. DO NOT output your mood. DO NOT output your name. Output ONLY the text message body.] " +
+        "Context: ";
+
+        switch kind {
+            case 0:
+                return basePrompt + "It is early morning in Night City. Check in on V as the day starts, for example asking how they slept or what they have planned.";
+            case 1:
+                return basePrompt + "It is the middle of the night. Text V as if you noticed they are probably still awake, in a way that fits your relationship with them.";
+            case 2:
+                return basePrompt + "V just woke up or several hours have passed since you last heard from them. Check in on V in a natural way.";
+            default:
+                return "";
+        }
+    }
+
     // Prompt Generation for Police Heat Change Event
     public func GetPoliceEventPrompt(heatLevel: Int32) -> String {
         let basePromt = 

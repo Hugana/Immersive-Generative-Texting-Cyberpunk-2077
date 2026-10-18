@@ -5,6 +5,7 @@ public class WeatherMonitorCallback extends DelayCallback {
     public func Call() -> Void {
         if IsDefined(this.eventManager) {
             this.eventManager.CheckWeatherChange();
+            this.eventManager.CheckTimeEvents();
             this.eventManager.StartWeatherMonitor(); 
         }
     }
@@ -39,9 +40,9 @@ public class ContextEventCallback extends DelayCallback {
         }
 
         httpSystem.pendingContext = this.contextMessage;
-        httpSystem.AppendToHistory("!?", true);
+        httpSystem.AppendToHistory(GetHiddenMessageMarker(), true);
         httpSystem.AppendToHistory("", false);
-        httpSystem.TriggerPostRequest("*System Update*");
+        httpSystem.TriggerPostRequest(GetSystemTriggerMessage());
         
         //FTLog("Context Event Triggered: " + this.contextMessage);
     }
@@ -60,10 +61,24 @@ public class ContextEventManager extends ScriptableSystem {
     private let lastWeatherType: worldRainIntensity;
     private let hasWeatherBaseline: Bool = false;
 
+    // Time of day events: each window rolls once per in-game day
+    private let lastTimeSeconds: Int32;
+    private let lastTimeWindowKey: Int32;
+    private let skippedSeconds: Int32;
+    private let pendingTimeEvent: Int32;
+    private let wakeEventChance: Float;
+    private let windowEventChance: Float;
+
     private func OnAttach() -> Void {
         // Weather baseline is taken on the first tick once the player exists,
         // otherwise a save loading into rain reads as a "weather change"
         this.hasWeatherBaseline = false;
+        this.lastTimeSeconds = -1;
+        this.lastTimeWindowKey = -1;
+        this.skippedSeconds = 0;
+        this.pendingTimeEvent = -1;
+        this.wakeEventChance = 0.5;
+        this.windowEventChance = 0.15;
 
         // Start Loop
         this.StartWeatherMonitor();
@@ -101,6 +116,82 @@ public class ContextEventManager extends ScriptableSystem {
         let callback = new WeatherMonitorCallback();
         callback.eventManager = GameInstance.GetScriptableSystemsContainer(GetGameInstance()).Get(n"ContextEventManager") as ContextEventManager;
         GameInstance.GetDelaySystem(this.GetGameInstance()).DelayCallback(callback, 5.0, false);
+    }
+
+    // Time of day check-ins: morning, late night and after sleeping or skipping time
+    public func CheckTimeEvents() -> Void {
+        if !IsDefined(GetPlayer(this.GetGameInstance())) { return; }
+        if GameInstance.GetSystemRequestsHandler().IsPreGame() { return; }
+
+        let nowSeconds: Int32 = GameInstance.GetGameTime(this.GetGameInstance()).GetSeconds();
+        let previousSeconds: Int32 = this.lastTimeSeconds;
+        this.lastTimeSeconds = nowSeconds;
+
+        // First reading only sets the baseline so loading a save never counts as a time jump
+        if previousSeconds < 0 { return; }
+
+        let day: Int32 = nowSeconds / 86400;
+        let hour: Int32 = (nowSeconds % 86400) / 3600;
+
+        // Window ids: 0 = morning, 1 = late night
+        let windowId: Int32 = -1;
+        if hour >= 6 && hour < 9 {
+            windowId = 0;
+        } else if hour >= 1 && hour < 4 {
+            windowId = 1;
+        }
+
+        let windowKey: Int32 = -1;
+        let newWindow: Bool = false;
+        if windowId >= 0 {
+            windowKey = day * 10 + windowId;
+            newWindow = windowKey != this.lastTimeWindowKey;
+            this.lastTimeWindowKey = windowKey;
+        }
+
+        // Sleeping advances the clock fast, possibly over several ticks, so skipped time is added up
+        // and the wake event fires once the clock is moving at normal speed again
+        let delta: Int32 = nowSeconds - previousSeconds;
+        let kind: Int32 = -1;
+        if delta >= 1800 {
+            this.skippedSeconds += delta;
+        } else {
+            if this.skippedSeconds >= 7200 {
+                kind = 2;
+                FTLog("Time event: sleep or time skip detected (" + this.skippedSeconds + " game seconds)");
+            }
+            this.skippedSeconds = 0;
+        }
+
+        if kind < 0 && newWindow {
+            kind = windowId;
+        }
+
+        // A window is consumed even when the roll fails, so each one rolls once per day
+        if kind >= 0 {
+            let chance: Float = this.windowEventChance;
+            if kind == 2 { chance = this.wakeEventChance; }
+            let roll: Float = RandRangeF(0.0, 1.0);
+            if roll <= chance {
+                this.pendingTimeEvent = kind;
+                FTLog("Time event queued: " + kind);
+            }
+        }
+
+        // Keep the event pending while V is in a scene or dialogue, such as the sleep transition
+        if this.pendingTimeEvent < 0 || this.IsPlayerBusy() { return; }
+
+        let dataSystem = GameInstance.GetScriptableSystemsContainer(this.GetGameInstance()).Get(n"ContextDataSystem") as ContextDataSystem;
+        if !IsDefined(dataSystem) { return; }
+
+        let prompt: String = dataSystem.GetTimeContextPrompt(this.pendingTimeEvent);
+        this.pendingTimeEvent = -1;
+        if StrLen(prompt) == 0 { return; }
+
+        let eventCallback = new ContextEventCallback();
+        eventCallback.contextMessage = prompt;
+        eventCallback.heatLevel = 0;
+        GameInstance.GetDelaySystem(this.GetGameInstance()).DelayCallback(eventCallback, 1.0, false);
     }
 
     //Check weather change

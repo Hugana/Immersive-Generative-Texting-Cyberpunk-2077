@@ -56,6 +56,17 @@ By hooking to the `PreventionSystem` like the Heat Event,but hooked into `OnDist
 | :---: | :---: |
 | ![Dark Matter](Images/BarInvitationDarkMatter.png)<br> Companion inviting you to the VIP club. | ![Lizzie's Bar](Images/BarInvitationLizzies.png)<br> Companion noticing you are in Kabuki and inviting you to Lizzie's. |
 
+### 4. Time of Day & Sleep Check-ins
+The same 5-second monitor loop as the weather also watches the in-game clock. Your current character may text you on their own at:
+  - **Morning** (about 6-9am): a casual check-in as the day starts.
+  - **Late night** (about 1-4am): a "you still up?" style message.
+  - **After sleeping or skipping time** (2 or more in-game hours skipped): a check-in after V wakes up.
+
+Each window rolls once per in-game day, with a 15% chance for the morning and late-night check-ins and a 50% chance after sleeping or skipping time. Like the other events, nothing is sent while V is in a dialogue or cutscene, or while a reply is already being generated. A time skip from the CET console also counts, which is handy for testing.
+
+![Morning Time Check-in](Images/MorningTimeChecks.png)
+<br>Panam's morning check-in, sent when the day starts.<br>
+
 ## Agentic Actions (Money Transfer)
 
 ### The Instruction (System Prompt)

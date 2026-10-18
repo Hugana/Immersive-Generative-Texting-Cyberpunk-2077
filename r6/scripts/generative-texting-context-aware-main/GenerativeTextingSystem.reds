@@ -934,7 +934,7 @@ public func GetUndoString() -> String {
             let vMessage = vMessages[i];
             let npcResponse = httpSystem.GetNpcResponse(i);
 
-            if NotEquals(vMessage,"!?") {
+            if NotEquals(vMessage, GetHiddenMessageMarker()) {
                 this.BuildMessage(vMessage, true, false);
             }
             if StrLen(npcResponse) == 0 {
