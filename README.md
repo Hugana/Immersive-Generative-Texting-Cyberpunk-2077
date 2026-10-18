@@ -139,7 +139,15 @@ GenerativeTextingHttpRequests (Network Layer):
 ## OpenRouter Support Added 
 
 Now you can use this mod with the OpenRouter API (https://openrouter.ai/).
-Configure the api and model in the GenerativeTextingUtilities.reds
+Set your API key in GenerativeTextingUtilities.reds, then pick a model in Mod Settings under "OpenRouter Model" (used when the provider is set to OpenRouter):
+  - Nemotron 3 Ultra 550B (free) (default)
+  - Nemotron 3.5 Lightning (free)
+  - Nemotron 3 Super 120B (free)
+  - Nemotron 3.5 Super VL (free)
+  - Poolside Laguna S 2.1 (free)
+  - Dots 3 Note Preview (free)
+  - Thinking Machines Inkling (free)
+  - Custom (set in code): uses the model in `GetCustomOpenRouterModel()` in GenerativeTextingUtilities.reds, so you can use any model from https://openrouter.ai/
 
 
 ## Credits
