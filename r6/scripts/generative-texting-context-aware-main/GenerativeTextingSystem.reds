@@ -66,6 +66,19 @@ public class GenerativeTextingSystem extends ScriptableService {
     public let aiModel: LLMProvider = LLMProvider.StableHorde;
 
     @runtimeProperty("ModSettings.mod", "Generative Texting")
+    @runtimeProperty("ModSettings.displayName", "OpenRouter Model")
+    @runtimeProperty("ModSettings.description", "Model used when Model is set to OpenRouter. Custom uses the model set in GenerativeTextingUtilities.reds.")
+    @runtimeProperty("ModSettings.displayValues.NemotronUltra", "Nemotron 3 Ultra 550B (free)")
+    @runtimeProperty("ModSettings.displayValues.NemotronLightning", "Nemotron 3.5 Lightning (free)")
+    @runtimeProperty("ModSettings.displayValues.NemotronSuper", "Nemotron 3 Super 120B (free)")
+    @runtimeProperty("ModSettings.displayValues.NemotronSuperVL", "Nemotron 3.5 Super VL (free)")
+    @runtimeProperty("ModSettings.displayValues.LagunaS", "Poolside Laguna S 2.1 (free)")
+    @runtimeProperty("ModSettings.displayValues.Dots3Note", "Dots 3 Note Preview (free)")
+    @runtimeProperty("ModSettings.displayValues.Inkling", "Thinking Machines Inkling (free)")
+    @runtimeProperty("ModSettings.displayValues.Custom", "Custom (set in code)")
+    public let openRouterModel: OpenRouterModel = OpenRouterModel.NemotronUltra;
+
+    @runtimeProperty("ModSettings.mod", "Generative Texting")
     @runtimeProperty("ModSettings.displayName", "Conversation Type")
     @runtimeProperty("ModSettings.description", "Controls the explicit nature of the conversation.")
     @runtimeProperty("ModSettings.displayValues.Normal", "Normal (Safe for Work)")

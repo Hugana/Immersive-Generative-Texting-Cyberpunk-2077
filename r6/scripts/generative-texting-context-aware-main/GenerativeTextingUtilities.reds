@@ -12,9 +12,35 @@ public func GetOpenRouterApiKey() -> String {
     return "0000000000";
 }
 
-// Replace this with your desired model at https://openrouter.ai/ 
-public func GetOpenRouterModel() -> String {
+// Model used when "Custom (set in code)" is picked in Mod Settings. Replace with any model from https://openrouter.ai/
+public func GetCustomOpenRouterModel() -> String {
     return "nvidia/nemotron-3-ultra-550b-a55b:free";
+}
+
+// OpenRouter model picked in Mod Settings
+public func GetOpenRouterModel() -> String {
+    let textingSystem = GetTextingSystem();
+    if !IsDefined(textingSystem) {
+        return GetCustomOpenRouterModel();
+    }
+    switch textingSystem.openRouterModel {
+        case OpenRouterModel.NemotronUltra:
+            return "nvidia/nemotron-3-ultra-550b-a55b:free";
+        case OpenRouterModel.NemotronLightning:
+            return "nvidia/nemotron-3.5-lightning:free";
+        case OpenRouterModel.NemotronSuper:
+            return "nvidia/nemotron-3-super-120b-a12b:free";
+        case OpenRouterModel.NemotronSuperVL:
+            return "nvidia/nemotron-3.5-super-vl:free";
+        case OpenRouterModel.LagunaS:
+            return "poolside/laguna-s-2.1:free";
+        case OpenRouterModel.Dots3Note:
+            return "dots-studio/dots-3-note-preview:free";
+        case OpenRouterModel.Inkling:
+            return "thinkingmachines/inkling:free";
+        default:
+            return GetCustomOpenRouterModel();
+    }
 }
 
 // Replace this with your desired provider for OpenRouter
@@ -396,6 +422,17 @@ enum LLMProvider {
     StableHorde = 0,
     OpenAI = 1,
     OpenRouter = 2
+}
+
+enum OpenRouterModel {
+    NemotronUltra = 0,
+    NemotronLightning = 1,
+    NemotronSuper = 2,
+    NemotronSuperVL = 3,
+    LagunaS = 4,
+    Dots3Note = 5,
+    Inkling = 6,
+    Custom = 7
 }
 
 enum PlayerLanguage {
