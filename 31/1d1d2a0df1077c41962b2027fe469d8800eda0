@@ -1,0 +1,19 @@
+README.md
+  s_512ced6b9b92f3::t_fb86b43b1917a1 142-150
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "311d1d2a0df1077c41962b2027fe469d8800eda0",
+  "prompts": {},
+  "sessions": {
+    "s_512ced6b9b92f3": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "84fd3b27-6a98-47be-8c3f-d9643fff053a",
+        "model": "unknown"
+      },
+      "human_author": "Hugo Ferreira <hugo.dn.ferreira@gmail.com>"
+    }
+  }
+}
